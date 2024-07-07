@@ -28,13 +28,17 @@ public:
     ~Logic();
 
 private slots:
-    void on_RUN_clicked();
+
     void on_Upload_code_clicked();
 
    void on_ASSEMBLE_clicked();
 
     void on_Reset_clicked();
 
+
+    void on_nextCycle_clicked();
+
+    void on_SampleCode_clicked();
 
 private:
     Ui::lc3 *ui;

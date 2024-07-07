@@ -51,7 +51,7 @@ QPushButton:pressed {
      <string>ASSEMBLE</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="RUN">
+   <widget class="QPushButton" name="nextCycle">
     <property name="geometry">
      <rect>
       <x>210</x>
@@ -354,11 +354,45 @@ QPushButton:pressed {
      <string>Reset</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="SampleCode">
+    <property name="geometry">
+     <rect>
+      <x>370</x>
+      <y>270</y>
+      <width>141</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton {
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #3ab8a1, stop:0.5 #009c87, stop:1 #007f6e);
+    border: none;
+    color: white;
+    font: 700 11pt &quot;UD Digi Kyokasho NK-B&quot;;
+    padding: 10px 20px;
+    border-radius: 15px; /* Adjust the border radius for rounded corners */
+}
+
+QPushButton:hover {
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #45c9b5, stop:0.5 #00bfa5, stop:1 #009c87);
+}
+
+QPushButton:pressed {
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #007f6e, stop:0.5 #009c87, stop:1 #45c9b5);
+}</string>
+    </property>
+    <property name="text">
+     <string>Sample Code</string>
+    </property>
+   </widget>
    <zorder>background</zorder>
    <zorder>Phase_lable</zorder>
    <zorder>Phase</zorder>
    <zorder>ASSEMBLE</zorder>
-   <zorder>RUN</zorder>
+   <zorder>nextCycle</zorder>
    <zorder>Upload_code</zorder>
    <zorder>memoryTable</zorder>
    <zorder>name</zorder>
@@ -367,6 +401,7 @@ QPushButton:pressed {
    <zorder>flagsTableWidget</zorder>
    <zorder>textEdit</zorder>
    <zorder>Reset</zorder>
+   <zorder>SampleCode</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

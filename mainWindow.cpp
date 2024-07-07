@@ -5,10 +5,10 @@
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
+    QApplication app(argc, argv);
     QIcon icon(":/new/prefix1/icon.png"); // Replace with actual path
-    a.setWindowIcon(icon);
+    app.setWindowIcon(icon);
     Logic w;
     w.show();
-    return a.exec();
+    return app.exec();
 }

@@ -15,9 +15,9 @@ int startAssembly(QString &assemblyCode) {
         return 1; // Return error code
     }
 
-    QMap<QString, uint16_t> labels = firstPass(codeLines);
+    QMap<QString, uint16_t> labels = processLabels(codeLines);
     LC3Memory tempMemory(0xFFFF); // Create memory with size 0xFFFF (64KB)
-    secondPass(codeLines, labels, tempMemory);
+    assembleInstructionSetA(codeLines, labels, tempMemory);
 
     // Assuming globalFile is an instance of a custom class that handles file operations
     BinFile.writeToFile(tempMemory, 0x3000, 0x3000 + codeLines.size() - 1);
