@@ -19,6 +19,7 @@ Logic::Logic(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::lc3)
 {
     ui->setupUi(this);
+    setFixedSize(1260, 610);
     ui->textEdit->setPlaceholderText("You can write your code here or click 'Upload File' to upload a .asm file. Afterward, click 'Assemble', wait, and then click 'Next Phase' to start doing the LC3 cycles.");
     memoryFill();
     setupRegisterTable();
