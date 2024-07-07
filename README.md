@@ -1,1 +1,1 @@
-# LC3-simulator
+# LC3
