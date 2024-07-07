@@ -31,7 +31,7 @@ This project implements a simulator for the LC3 (Little Computer 3) architecture
 - Build the project using Qt Creator.
 - Run the compiled binary to start the LC3 simulator.
 
-- You can also install it using the installer provided.
+### You can also install it using the installer provided, without the need to install Qt creator or C++ compiler.
 
 ## Usage
 
@@ -40,6 +40,7 @@ This project implements a simulator for the LC3 (Little Computer 3) architecture
 3. **Reset**: Click the "Reset" button to reset the simulator.
 4. **Next Cycle**: Click the "Next Cycle" button to execute the next instruction cycle.
 5. **Sample Code**: Click the "Sample Code" button to load a sample LC3 code.
+6. **Write Code**: Write your LC3 code in text edit instead of uploading a file.
 
 The GUI provides tables to display register values, memory contents, and flags, allowing you to monitor the state of the LC3 machine as you step through your code.
 
