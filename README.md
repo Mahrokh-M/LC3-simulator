@@ -163,7 +163,7 @@ The project is structured into several key components that manage different aspe
 - **Logic**: Handles the main application logic and user interface interactions.
 - **LC3Registers**: Manages the LC3 CPU registers.
 - **LC3Memory**: Manages the LC3 memory operations.
-- **LC3Instructions**: Implements the LC3 instruction set including fetch, decode, execute operations.
+- **LC3Instructions**: Implements the LC3 instruction set including fetch, decode, evaluate address, fetch opperand, execute, store operations.
 - **FileReadWrite**: Handles file operations for reading from and writing to files.
 - **AssemblerLogic**: Logic for assembling LC3 assembly code into machine code.
 - **Assembler**: Manages the assembly process.
