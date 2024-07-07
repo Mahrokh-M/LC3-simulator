@@ -1,37 +1,40 @@
-#ifndef LC3_H
-#define LC3_H
+#ifndef LOGIC_H
+#define LOGIC_H
 
 #include <QMainWindow>
 #include "lc3instructions.h"
-#include "ui_lc3.h"
+#include "ui_Logic.h"
 #include "lc3memory.h"
-#include "binfile.h"
+#include "FileReadWrite.h"
 #include "assembler.h"
 #include "memorytablemodel.h"
 extern LC3Registers registers;
 extern int index;
-
+extern LC3Memory memory;
 
 QT_BEGIN_NAMESPACE
 
 
 namespace Ui {
-class lc3;
+class Logic;
 }
 
-class lc3 : public QMainWindow
+class Logic : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit lc3(QWidget *parent = nullptr);
-    ~lc3();
+    explicit Logic(QWidget *parent = nullptr);
+    ~Logic();
 
 private slots:
     void on_RUN_clicked();
     void on_Upload_code_clicked();
 
-    void on_ASSEMBLE_clicked();
+   void on_ASSEMBLE_clicked();
+
+    void on_Reset_clicked();
+
 
 private:
     Ui::lc3 *ui;
@@ -52,4 +55,4 @@ private:
     void updateRegisters();
 };
 
-#endif // LC3_H
+#endif // LOGIC_H

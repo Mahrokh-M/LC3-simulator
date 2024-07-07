@@ -9,24 +9,26 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    AssemblerLogic.cpp \
+    FileReadWrite.cpp \
+    Logic.cpp \
     assembler.cpp \
-    binfile.cpp \
     lc3instructions.cpp \
     lc3memory.cpp \
     lc3registers.cpp \
-    main.cpp \
-    lc3.cpp
+    mainWindow.cpp
 
 HEADERS += \
+    AssemblerLogic.h \
+    FileReadWrite.h \
+    Logic.h \
     assembler.h \
-    binfile.h \
-    lc3.h \
     lc3instructions.h \
     lc3memory.h \
     lc3registers.h
 
 FORMS += \
-    lc3.ui
+    Logic.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

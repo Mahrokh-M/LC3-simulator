@@ -3,14 +3,15 @@
 
 #include <QString>
 #include "lc3memory.h"
-#include "binfile.h"
+#include "FileReadWrite.h"
+#include <QCoreApplication>
+#include <QRegularExpression>
 
 
-extern binFile globalFile;
+extern FileReadWrite BinFile;
 class Assembler
 {
-public:
-    Assembler();
+
 };
 
 int startAssembly( QString &inputFilename);

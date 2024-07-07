@@ -1,6 +1,7 @@
 
-#include "lc3.h"
-#include "ui_lc3.h"
+#include "Logic.h"
+#include "lc3instructions.h"
+#include "ui_Logic.h"
 #include <QFileDialog>
 #include <QVBoxLayout>
 #include <QLabel>
@@ -8,13 +9,13 @@
 #include <QTableWidget>
 #include <QTableWidgetItem>
 #include <QScrollBar>
-
+LC3Memory memory(0xFFFF);
 LC3Registers registers;
 LC3Instructions instructions;
 QString fileName;
 int index;
 int sc=1;
-lc3::lc3(QWidget *parent)
+Logic::Logic(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::lc3)
 {
     ui->setupUi(this);
@@ -25,12 +26,12 @@ lc3::lc3(QWidget *parent)
     setupFlagsTable();
 }
 
-lc3::~lc3()
+Logic::~Logic()
 {
     delete ui;
 }
 
-void lc3::setupRegisterTable() {
+void Logic::setupRegisterTable() {
     // Hide horizontal and vertical headers
     ui->tableWidget->horizontalHeader()->setVisible(false);
     ui->tableWidget->verticalHeader()->setVisible(false);
@@ -84,7 +85,7 @@ void lc3::setupRegisterTable() {
     ui->tableWidget->verticalHeader()->setStretchLastSection(true);
 }
 
-void lc3::setupAdditionalTable() {
+void Logic::setupAdditionalTable() {
     // Hide horizontal and vertical headers
     ui->additionalTableWidget->horizontalHeader()->setVisible(false);
     ui->additionalTableWidget->verticalHeader()->setVisible(false);
@@ -136,7 +137,7 @@ void lc3::setupAdditionalTable() {
     ui->additionalTableWidget->verticalHeader()->setStretchLastSection(true);
 }
 
-void lc3::setupFlagsTable() {
+void Logic::setupFlagsTable() {
     // Hide horizontal and vertical headers
     ui->flagsTableWidget->horizontalHeader()->setVisible(false);
     ui->flagsTableWidget->verticalHeader()->setVisible(false);
@@ -190,11 +191,11 @@ void lc3::setupFlagsTable() {
 
 
 
-void lc3::updateRegisterContent(int registerIndex, uint16_t value) {
+void Logic::updateRegisterContent(int registerIndex, uint16_t value) {
     QString content = QString::number(value, 16).toUpper();
     ui->tableWidget->item(1, registerIndex)->setText("0x" + content);
 }
-void lc3::updateAllRegisters() {
+void Logic::updateAllRegisters() {
     updateRegisterContent(1, registers.getR(0)); // Start from index 1
     updateRegisterContent(2, registers.getR(1));
     updateRegisterContent(3, registers.getR(2));
@@ -205,11 +206,11 @@ void lc3::updateAllRegisters() {
     updateRegisterContent(8, registers.getR(7)); // End at index 8
 }
 
-void lc3::updateFlagContent(int index, uint16_t value) {
+void Logic::updateFlagContent(int index, uint16_t value) {
     QString content = QString::number(value).toUpper();
     ui->flagsTableWidget->item(1, index)->setText(content);
 }
-void lc3::updateAllFlags() {
+void Logic::updateAllFlags() {
     updateFlagContent(1, (registers.getCC() >> 2) & 0x1); // Negative
     updateFlagContent(2, registers.getCC() & 0x1); // Positive
     updateFlagContent(3, (registers.getCC() >> 1) & 0x1); // Zero
@@ -217,11 +218,11 @@ void lc3::updateAllFlags() {
 
 
 
-void lc3::updateAdditionalContent(int index, uint16_t value) {
+void Logic::updateAdditionalContent(int index, uint16_t value) {
     QString content = QString::number(value, 16).toUpper();
     ui->additionalTableWidget->item(1, index)->setText("0x" + content);
 }
-void lc3::updateAllAdditionalValues() {
+void Logic::updateAllAdditionalValues() {
     updateAdditionalContent(1, registers.getMAR()); // Start from index 1
     updateAdditionalContent(2, registers.getMDR());
     updateAdditionalContent(3, registers.getPC());
@@ -230,7 +231,7 @@ void lc3::updateAllAdditionalValues() {
 
 
 
-void lc3::updateRegisters()
+void Logic::updateRegisters()
 {
     updateAllRegisters();
     updateAllAdditionalValues();
@@ -238,7 +239,7 @@ void lc3::updateRegisters()
 
 }
 
-void lc3::updateMemory(int index)
+void Logic::updateMemory(int index)
 {
     if (index < ui->memoryTable->rowCount())
     {
@@ -252,8 +253,9 @@ void lc3::updateMemory(int index)
 }
 
 
-void lc3::on_RUN_clicked()
+void Logic::on_RUN_clicked()
 {
+
     if (sc == -1)
     {
         // HALT
@@ -314,27 +316,9 @@ void lc3::on_RUN_clicked()
     }
 }
 
-//void lc3::on_Upload_code_clicked()
-//{
-//    fileName = QFileDialog::getOpenFileName(this, tr("Open File"), "", tr("Assembly Files (*.asm)"));
-//    if (!fileName.isEmpty())
-//    {
-//        if (fileName.endsWith(".asm", Qt::CaseInsensitive))
-//        {
-//            QMessageBox::information(this, tr("File Selected"), tr("You selected:\n%1").arg(fileName));
-//        }
-//        else
-//        {
-//            QMessageBox::warning(this, tr("Invalid File"), tr("Please select a file with an .asm extension."));
-//        }
-//    }
-//    else
-//    {
-//        QMessageBox::warning(this, tr("No File Selected"), tr("No file was selected."));
-//    }
-//}
 
-void lc3::memoryFill() {
+
+void Logic::memoryFill() {
     // Set up table dimensions and headers
     ui->memoryTable->setRowCount(0xFFFF); // Set row count to 0xFFFF (65535)
     ui->memoryTable->setColumnCount(2);   // Two columns: Address and Value
@@ -372,7 +356,7 @@ void lc3::memoryFill() {
 }
 
 
-void lc3::on_Upload_code_clicked()
+void Logic::on_Upload_code_clicked()
 {
     QString newFileName = QFileDialog::getOpenFileName(this, tr("Open File"), "", tr("Assembly Files (*.asm)"));
     if (!newFileName.isEmpty())
@@ -402,7 +386,7 @@ void lc3::on_Upload_code_clicked()
         QMessageBox::warning(this, tr("No File Selected"), tr("No file was selected."));
     }
 }
-void lc3::on_ASSEMBLE_clicked() {
+void Logic::on_ASSEMBLE_clicked() {
     QString code;
 
     if (!ui->textEdit->toPlainText().isEmpty()) {
@@ -430,11 +414,52 @@ void lc3::on_ASSEMBLE_clicked() {
         qWarning() << "Assembly failed with error code:" << result;
         // Handle error scenario as needed
     } else {
-        globalFile.readFromFile(0x3000);
+        BinFile.readFromFile(0x3000);
         registers.setPC(0x3000);
         index = 0x3000;
         memoryFill();
         updateMemory(index); // Ensure memory is filled and visible
     }
 }
+
+
+
+
+void Logic::on_Reset_clicked()
+{
+    // Clear the file name variable
+    fileName.clear();
+
+    // Clear the QTextEdit content
+    ui->textEdit->clear();
+
+    // Reset memory
+
+    for (uint16_t i = 0; i < 0xFFFF; ++i) {
+        memory.write(i, 0x0000);
+    }
+    // Reset program counter (PC)
+    registers.setPC(0x0000);
+
+    // Reset MDR, MAR, and IR
+    registers.setMDR(0x0000);
+    registers.setMAR(0x0000);
+    registers.setIR(0x0000);
+    // Update the UI to reflect these changes
+    updateAllRegisters();
+    updateAllAdditionalValues();
+    updateAllFlags();
+
+    // Clear memory table contents
+    for (int i = 0; i < ui->memoryTable->rowCount(); ++i) {
+        QTableWidgetItem *addressItem = ui->memoryTable->item(i, 0);
+        QTableWidgetItem *valueItem = ui->memoryTable->item(i, 1);
+        if (addressItem) addressItem->setText(QString("0x%1").arg(i, 4, 16, QChar('0')).toUpper());
+        if (valueItem) valueItem->setText("0x0000");
+    }
+    ui->Phase->clear();
+    // Reset simulation phase counter
+    sc = 1;
+}
+
 

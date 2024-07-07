@@ -320,6 +320,40 @@ border-radius: 15px;
 padding-left: 10px; padding-right: 10px; padding-top: 5px; padding-bottom: 5px;</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="Reset">
+    <property name="geometry">
+     <rect>
+      <x>370</x>
+      <y>210</y>
+      <width>141</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton {
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #3ab8a1, stop:0.5 #009c87, stop:1 #007f6e);
+    border: none;
+    color: white;
+    font: 700 11pt &quot;UD Digi Kyokasho NK-B&quot;;
+    padding: 10px 20px;
+    border-radius: 15px; /* Adjust the border radius for rounded corners */
+}
+
+QPushButton:hover {
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #45c9b5, stop:0.5 #00bfa5, stop:1 #009c87);
+}
+
+QPushButton:pressed {
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #007f6e, stop:0.5 #009c87, stop:1 #45c9b5);
+}</string>
+    </property>
+    <property name="text">
+     <string>Reset</string>
+    </property>
+   </widget>
    <zorder>background</zorder>
    <zorder>Phase_lable</zorder>
    <zorder>Phase</zorder>
@@ -332,6 +366,7 @@ padding-left: 10px; padding-right: 10px; padding-top: 5px; padding-bottom: 5px;<
    <zorder>additionalTableWidget</zorder>
    <zorder>flagsTableWidget</zorder>
    <zorder>textEdit</zorder>
+   <zorder>Reset</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

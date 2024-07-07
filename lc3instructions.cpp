@@ -1,28 +1,25 @@
 #include "lc3instructions.h"
 #include <cstdint>
-#include "lc3.h"
-uint16_t ir;
-uint16_t nzp;
-uint16_t dr;
-uint16_t sr1;
-uint16_t imm_flag;
-uint16_t sr2;
-uint16_t imm5;
-int16_t offset9;
-int16_t offset6;
-int16_t offset11;
-uint16_t base_r;
-uint16_t flag;
-uint16_t opcode;
-uint16_t address;
-uint16_t v_sr1;
-uint16_t v_sr2;
-uint16_t GateALU;
-uint16_t value;
-uint16_t sr;
+#include "Logic.h"
+uint16_t ir, nzp, dr, sr1, imm_flag, sr2, imm5, base_r, flag, opcode, address, v_sr1, v_sr2, GateALU, value, sr;
+int16_t offset9, offset6, offset11;
+
+void LC3Instructions::updateFlags(uint16_t result){
+    if (result == 0)
+    {
+        registers.setCC(0x02); // Set condition code to Zero
+    }
+    else if (result >> 15)
+    {
+        registers.setCC(0x04); // Set condition code to Negative
+    }
+    else
+    {
+        registers.setCC(0x01); // Set condition code to Positive
+    }
+}
+
 void LC3Instructions::fetch(LC3Memory& memory)
-
-
 {
     uint16_t pc = registers.getPC();
     registers.setMAR(pc);
@@ -30,317 +27,346 @@ void LC3Instructions::fetch(LC3Memory& memory)
     registers.setPC(pc + 1);
     registers.setIR(registers.getMDR());
 }
+
 void LC3Instructions::decode()
 {
     opcode = (registers.getIR() >> 12) & 0xF;
 
-    switch (opcode)
+    if (opcode == 0x0)
     {
-    case 0x0:
-        // BR
-    {
+        // BR instruction
         ir = registers.getIR();
         nzp = (ir >> 9) & 0x7; // Extract nzp bits
-        offset9 = ir & 0x1FF;
-        // Extract PCoffset9 (9-bit)
+        offset9 = ir & 0x1FF; // Extract PCoffset9 (9-bit)
+
+        // Sign-extend offset9 to 16 bits if necessary
         if (offset9 & 0x100)
-        {                      // Check if the sign bit (bit 8) is set
+        {
             offset9 |= 0xFE00; // Sign extend to the left
         }
     }
-
-        break;
-    case 0x1:
-        // ADD
+    else if (opcode == 0x1)
     {
-        dr = (registers.getIR() >> 9) & 0x7;       // Destination register
-        sr1 = (registers.getIR() >> 6) & 0x7;      // Source register 1
-        imm_flag = (registers.getIR() >> 5) & 0x1; // Immediate flag
+        // ADD instruction
+        ir = registers.getIR();
+        dr = (ir >> 9) & 0x7;       // Destination register
+        sr1 = (ir >> 6) & 0x7;      // Source register 1
+        imm_flag = (ir >> 5) & 0x1; // Immediate flag
 
         if (imm_flag)
         {
             // Immediate mode
-            imm5 = registers.getIR() & 0x1F; // Extract immediate value (5 bits)
+            imm5 = ir & 0x1F; // Extract immediate value (5 bits)
 
             // Sign-extend imm5 to 16 bits
             if (imm5 & 0x10)
-            {                   // Check if the sign bit (bit 4) is set
+            {
                 imm5 |= 0xFFE0; // Sign extend to the left
             }
         }
         else
         {
             // Register mode
-            sr2 = registers.getIR() & 0x7; // Source register 2
+            sr2 = ir & 0x7; // Source register 2
         }
     }
-
-        break;
-    case 0x2:
-        // LD
+    else if (opcode == 0x2)
     {
-        dr = (registers.getIR() >> 9) & 0x0007;
-        offset9 = registers.getIR() & 0x01FF;
+        // LD instruction
+        ir = registers.getIR();
+        dr = (ir >> 9) & 0x0007;
+        offset9 = ir & 0x01FF;
         if (offset9 & 0x0100) // Sign extension
         {
             offset9 |= 0xFE00;
         }
     }
-        break;
-    case 0xA:
-        // LDI
+    else if (opcode == 0xA)
     {
-        dr = (registers.getIR() >> 9) & 0x0007;
-        offset9 = registers.getIR() & 0x01FF;
+        // LDI instruction
+        ir = registers.getIR();
+        dr = (ir >> 9) & 0x0007;
+        offset9 = ir & 0x01FF;
         if (offset9 & 0x0100) // Sign extension
         {
             offset9 |= 0xFE00;
         }
     }
-        break;
-    case 0x6:
-        // LDR
+    else if (opcode == 0x6)
     {
-        offset6 = registers.getIR() & 0x003F;
+        // LDR instruction
+        ir = registers.getIR();
+        offset6 = ir & 0x003F;
         if (offset6 & 0x0020) // Sign extension
         {
             offset6 |= 0xFFC0;
         }
-        base_r = (registers.getIR() >> 6) & 0x0007;
-        dr = (registers.getIR() >> 9) & 0x0007;
+        base_r = (ir >> 6) & 0x0007;
+        dr = (ir >> 9) & 0x0007;
     }
-        break;
-    case 0xE:
-        // LEA
+    else if (opcode == 0xE)
     {
+        // LEA instruction
+        ir = registers.getIR();
         offset9 = ir & 0x1FF;
         if (offset9 & 0x100)
         {
             offset9 |= 0xFE00;
         }
 
-        dr = (registers.getIR() >> 9) & 0x0007;
+        dr = (ir >> 9) & 0x0007;
     }
-        break;
-    case 0x3:
-        //ST
-    {dr = (registers.getIR() >> 9) & 0x7;
-        offset9 = registers.getIR() & 0x1FF;
+    else if (opcode == 0x3)
+    {
+        // ST instruction
+        ir = registers.getIR();
+        dr = (ir >> 9) & 0x7;
+        offset9 = ir & 0x1FF;
         if (offset9 & 0x0100) // Sign extension
         {
             offset9 |= 0xFE00;
         }
     }
-        break;
-    case 0xB:
-        //STI
+    else if (opcode == 0xB)
     {
-        dr = (registers.getIR() >> 9) & 0x7;
-        offset9 = registers.getIR() & 0x1FF;
+        // STI instruction
+        ir = registers.getIR();
+        dr = (ir >> 9) & 0x7;
+        offset9 = ir & 0x1FF;
         if (offset9 & 0x0100) // Sign extension
         {
             offset9 |= 0xFE00;
         }
     }
-        break;
-    case 0x7:
-        //STR
+    else if (opcode == 0x7)
     {
-        dr = (registers.getIR() >> 9) & 0x7;
-        base_r = (registers.getIR() >> 6) & 0x7;
-        offset6 = registers.getIR() & 0x3F;
+        // STR instruction
+        ir = registers.getIR();
+        dr = (ir >> 9) & 0x7;
+        base_r = (ir >> 6) & 0x7;
+        offset6 = ir & 0x3F;
         if (offset6 & 0x0020) // Sign extension
         {
             offset6 |= 0xFFC0;
         }
     }
-        break;
-    case 0x4:
-        //JSR
+    else if (opcode == 0x4)
     {
-        flag = (registers.getIR() >> 11) & 0x1;
-        if (flag){
-            offset11 = registers.getIR() & 0x7FF; // Extract PCoffset11
+        // JSR or JSRR instruction
+        ir = registers.getIR();
+        flag = (ir >> 11) & 0x1;
+        if (flag)
+        {
+            // JSR
+            offset11 = ir & 0x7FF; // Extract PCoffset11
             if (offset11 & 0x0400) // Sign extension
             {
                 offset11 |= 0xF800;
             }
-        }else{
-            //JSRR
-            base_r = (registers.getIR() >> 6) & 0x7;
+        }
+        else
+        {
+            // JSRR
+            base_r = (ir >> 6) & 0x7;
         }
     }
-        break;
-    case 0x5:
-        //AND
+    else if (opcode == 0x5)
     {
-        dr = (registers.getIR() >> 9) & 0x7;
-        sr1 = (registers.getIR() >> 6) & 0x7;
-        imm_flag = (registers.getIR() >> 5) & 0x1;
+        // AND instruction
+        ir = registers.getIR();
+        dr = (ir >> 9) & 0x7;
+        sr1 = (ir >> 6) & 0x7;
+        imm_flag = (ir >> 5) & 0x1;
 
-        if (imm_flag) {
+        if (imm_flag)
+        {
             // Immediate mode
-            imm5 = registers.getIR() & 0x1F;
+            imm5 = ir & 0x1F;
 
             // Sign-extend imm5 to 16 bits
-            if (imm5 & 0x10) { // Check if the sign bit (bit 4) is set
+            if (imm5 & 0x10)
+            {
                 imm5 |= 0xFFE0; // Sign extend to the left
             }
         }
-        else{
-            sr2 = registers.getIR() & 0x7; // Source register 2
+        else
+        {
+            // Register mode
+            sr2 = ir & 0x7; // Source register 2
         }
     }
-        break;
-
-    case 0xC:
+    else if (opcode == 0xC)
     {
-        if (((registers.getIR() >> 6) & 0x7) == 7) { // Check if it's a RET instruction
-            //RET
-
-        } else {
-            //JMP
-            base_r = (registers.getIR() >> 6) & 0x7;
+        // RET or JMP instruction
+        ir = registers.getIR();
+        if (((ir >> 6) & 0x7) == 7)
+        {
+            // RET
+            address = registers.getR(7); // Set PC to the value contained in R7
+        }
+        else
+        {
+            // JMP
+            base_r = (ir >> 6) & 0x7;
         }
     }
-        break;
-    case 0x9:
-        //NOT
+    else if (opcode == 0x9)
     {
-        dr = (registers.getIR() >> 9) & 0x7; // destination register
-        sr = (registers.getIR() >> 6) & 0x7; // source register
-    }
-        break;
-    default:
-        // Handle unsupported opcode
-        break;
+        // NOT instruction
+        ir = registers.getIR();
+        dr = (ir >> 9) & 0x7; // Destination register
+        sr = (ir >> 6) & 0x7; // Source register
     }
 }
+
 void LC3Instructions::evaluateAddress(LC3Memory &memory)
 {
-
-    switch (opcode) {
-    case 0x0:
-        //BR
-        address=registers.getPC() + offset9;
-    case 0x2:
-        // LD
+    if (opcode == 0x0)
+    {
+        // BR instruction
         address = registers.getPC() + offset9;
-        // Set the address in MAR
-        registers.setMAR(address);
-        break;
-    case 0x4:
-        //JSR
-        if (flag){
-            address=registers.getPC() + offset11; // Update PC with the offset
-        }else{
-            //JSRR
-            address=registers.getR(base_r);
+    }
+    else if (opcode == 0x2)
+    {
+        // LD instruction
+        address = registers.getPC() + offset9;
+        registers.setMAR(address); // Set the address in MAR
+    }
+    else if (opcode == 0x4)
+    {
+        // JSR instruction
+        if (flag)
+        {
+            address = registers.getPC() + offset11; // Update PC with the offset
         }
-    case 0xA:
-        // LDI
+        else
+        {
+            // JSRR instruction
+            address = registers.getR(base_r);
+        }
+    }
+    else if (opcode == 0xA)
+    {
+        // LDI instruction
         address = registers.getPC() + offset9;
         registers.setMAR(address);
         address = memory.read(registers.getMAR());
         registers.setMAR(address);
-        break;
-    case 0x6:
-        // LDR
+    }
+    else if (opcode == 0x6)
+    {
+        // LDR instruction
         address = registers.getR(base_r) + offset6;
         registers.setMAR(address);
-        break;
-    case 0xC:
-        //RET
+    }
+    else if (opcode == 0xC)
     {
-        if (((registers.getIR() >> 6) & 0x7) == 7) {
-            // Set PC to the value contained in R7
-            address=registers.getR(7);
+        // RET or JMP instruction
+        if (((registers.getIR() >> 6) & 0x7) == 7)
+        {
+            // RET
+            address = registers.getR(7); // Set PC to the value contained in R7
         }
-        //JMP
-        else {
-            address=registers.getR(base_r);
+        else
+        {
+            // JMP
+            address = registers.getR(base_r);
         }
     }
-    case 0xE:
-        // LEA
+    else if (opcode == 0xE)
+    {
+        // LEA instruction
         address = registers.getPC() + offset9;
-        break;
-    case 0x3:
-        // ST
+    }
+    else if (opcode == 0x3)
+    {
+        // ST instruction
         address = registers.getPC() + offset9;
-        break;
-    case 0xB:
-        // STI
+    }
+    else if (opcode == 0xB)
+    {
+        // STI instruction
         address = registers.getPC() + offset9;
-        break;
-    case 0x7:
-        // STR
+    }
+    else if (opcode == 0x7)
+    {
+        // STR instruction
         address = registers.getR(base_r) + offset6;
-        break;
     }
 }
+
 void LC3Instructions::fetchOperands(LC3Memory &memory)
 {
-    switch (opcode)
+    if (opcode == 0x1)
     {
-    case 0x1:
-        // ADD
+        // ADD instruction
         v_sr1 = registers.getR(sr1);
         v_sr2 = registers.getR(sr2);
-        break;
-    case 0x5:
-        // AND
+    }
+    else if (opcode == 0x5)
+    {
+        // AND instruction
         v_sr1 = registers.getR(sr1);
         v_sr2 = registers.getR(sr2);
-        break;
-    case 0x9:
-        //NOT
-        v_sr1=registers.getR(sr);
-    case 0x2:
-        // LD
+    }
+    else if (opcode == 0x9)
+    {
+        // NOT instruction
+        v_sr1 = registers.getR(sr);
+    }
+    else if (opcode == 0x2)
+    {
+        // LD instruction
         registers.setMDR(memory.read(registers.getMAR()));
-        break;
-    case 0xA:
-        // LDI
+    }
+    else if (opcode == 0xA)
+    {
+        // LDI instruction
         registers.setMDR(memory.read(registers.getMAR()));
-        break;
-    case 0x6:
-        // LDR
+    }
+    else if (opcode == 0x6)
+    {
+        // LDR instruction
         registers.setMDR(memory.read(registers.getMAR()));
-        break;
-    case 0x3:
-        //ST
-        value=registers.getR(dr);
-        break;
-    case 0xB:
-        //STI
-        value=registers.getR(dr);
-        break;
-    case 0x7:
-        //STR
-        value=registers.getR(dr);
-
+    }
+    else if (opcode == 0x3)
+    {
+        // ST instruction
+        value = registers.getR(dr);
+    }
+    else if (opcode == 0xB)
+    {
+        // STI instruction
+        value = registers.getR(dr);
+    }
+    else if (opcode == 0x7)
+    {
+        // STR instruction
+        value = registers.getR(dr);
     }
 }
+
 void LC3Instructions::execute()
 {
     uint16_t opcode = (registers.getIR() >> 12) & 0xF;
 
-    switch (opcode)
+    if (opcode == 0x1)
     {
-    case 0x1:
-        // ADD
+        // ADD instruction
         if (imm_flag)
         {
             // Immediate mode
-            GateALU=v_sr1 + static_cast<int16_t>(imm5);
-        } else {
-            // Register mode
-            GateALU=v_sr1 + v_sr2;
+            GateALU = v_sr1 + static_cast<int16_t>(imm5);
         }
-        break;
-    case 0x5:
-        // AND
+        else
+        {
+            // Register mode
+            GateALU = v_sr1 + v_sr2;
+        }
+    }
+    else if (opcode == 0x5)
+    {
+        // AND instruction
         if (imm_flag)
         {
             // Immediate mode
@@ -351,228 +377,135 @@ void LC3Instructions::execute()
             // Register mode
             GateALU = registers.getR(sr1) & registers.getR(sr2);
         }
-        break;
-    case 0x9:
-        //NOT
-        GateALU=~v_sr1; // bitwise NOT operation
-        break;
+    }
+    else if (opcode == 0x9)
+    {
+        // NOT instruction
+        GateALU = ~v_sr1; // Bitwise NOT operation
     }
 }
+
 void LC3Instructions::store(LC3Memory &memory)
 {
-    switch (opcode)
-    {
-    case 0x0:
-    { // BR
+    if (opcode == 0x0)
+    { // BR instruction
         // Get current condition codes
         uint16_t cc = registers.getCC();
+
         // Check if any of the conditions are met
         bool condition_met = ((nzp & 0x4) && (cc & 0x4)) || // n bit
-                ((nzp & 0x2) && (cc & 0x2)) || // z bit
-                ((nzp & 0x1) && (cc & 0x1));   // p bit
+                             ((nzp & 0x2) && (cc & 0x2)) || // z bit
+                             ((nzp & 0x1) && (cc & 0x1));   // p bit
+
         if (condition_met)
         {
             // Update PC with the offset if the condition is met
             registers.setPC(address);
         }
     }
-        break;
-    case 0x1:
-        // ADD
-    {
+    else if (opcode == 0x1)
+    { // ADD instruction
         // Set condition codes
         registers.setR(dr, GateALU);
         uint16_t result = registers.getR(dr);
-        if (result == 0)
-        {
-            registers.setCC(0x02); // Zero
-        }
-        else if (result >> 15)
-        {
-            registers.setCC(0x04); // Negative
-        }
-        else
-        {
-            registers.setCC(0x01); // Positive
-        }
+        updateFlags(result);
     }
-        break;
-    case 0x2:
-        // LD
-    {
+    else if (opcode == 0x2)
+    { // LD instruction
         // Read value from MDR
         uint16_t value = registers.getMDR();
+
         // Store value in destination register
         registers.setR(dr, value);
+
         // Update condition codes
-        if (value == 0)
-        {
-            registers.setCC(0x02); // Zero flag
-        }
-        else if (value & 0x8000)
-        {
-            registers.setCC(0x04); // Negative flag
-        }
-        else
-        {
-            registers.setCC(0x01); // Positive flag
-        }
+        updateFlags(value);
     }
-        break;
-    case 0xA:
-        //LDI
-    {
+    else if (opcode == 0xA)
+    { // LDI instruction
         uint16_t value = registers.getMDR();
+
         // Update condition codes
         registers.setR(dr, value);
-
-        // Update condition codes
-        if (value == 0)
-        {
-            registers.setCC(0x02); // Zero flag
-        }
-        else if (value & 0x8000)
-        {
-            registers.setCC(0x04); // Negative flag
-        }
-        else
-        {
-            registers.setCC(0x01); // Positive flag
-        }
-
+        updateFlags(value);
     }
-        break;
-    case 0x6:
-        //LDR
-    {
+    else if (opcode == 0x6)
+    { // LDR instruction
         uint16_t value = registers.getMDR();
+
         // Update condition codes
         registers.setR(dr, value);
-
-            // Update condition codes
-            if (value == 0)
-            {
-                registers.setCC(0x02); // Zero flag
-            }
-            else if (value & 0x8000)
-            {
-                registers.setCC(0x04); // Negative flag
-            }
-            else
-            {
-                registers.setCC(0x01); // Positive flag
-            }
+        updateFlags(value);
     }
-        break;
-    case 0xE:
-        // LEA
-    {
+    else if (opcode == 0xE)
+    { // LEA instruction
         // Store address in destination register
         registers.setR(dr, address);
     }
-        break;
-    case 0x3:
-        //ST
-    {
+    else if (opcode == 0x3)
+    { // ST instruction
         // Set the address in MAR
         registers.setMAR(address);
+
         // Set the value to be stored in MDR
         registers.setMDR(value);
 
         // Store the value in the DR to the computed address
-        index = registers.getMAR();
         memory.write(registers.getMAR(), registers.getMDR());
     }
-        break;
-    case 0xB:
-        //STI
-    {
+    else if (opcode == 0xB)
+    { // STI instruction
         // Set the address in MAR
         registers.setMAR(address);
+
         // Set the value to be stored in MDR
         registers.setMDR(value);
+
         // Store the value in the SR to the memory at the address pointed to by the computed address
         memory.write(memory.read(registers.getMAR()), registers.getMDR());
-        // Store the value in the DR to the computed address
-        index=memory.read(registers.getMAR());
     }
-        break;
-    case 0x7:
-        //STR
-    {
+    else if (opcode == 0x7)
+    { // STR instruction
         // Set the address in MAR
         registers.setMAR(address);
+
         // Set the value to be stored in MDR
         registers.setMDR(value);
 
         // Store the value in the SR to the computed address
-        index = registers.getMAR();
         memory.write(registers.getMAR(), registers.getMDR());
     }
-        break;
-    case 0x4:
-    {
-
-        // JSR JSRR
+    else if (opcode == 0x4)
+    { // JSR or JSRR instruction
         uint16_t currentPC = registers.getPC(); // Get the current PC
+
         // Store the current PC in R7
         registers.setR(7, currentPC);
-        registers.setPC(address); // Update PC with the offset
-    }
-        break;
-    case 0x5:
-        // AND
-    {
-        // Set condition codes
-        registers.setR(dr, GateALU);
-        uint16_t result = registers.getR(dr);
-        if (result == 0)
-        {
-            registers.setCC(0x02);
-        }
-        else if (result >> 15)
-        {
-            registers.setCC(0x04); // Negative
-        }
-        else
-        {
-            registers.setCC(0x01); // Positive
-        }
-    }
-        break;
-    case 0xC:
-        //RET JMP
-    {
 
+        // Update PC with the offset
         registers.setPC(address);
-
     }
-        break;
-    case 0x9:
-        // NOT
-    {
+    else if (opcode == 0x5)
+    { // AND instruction
         // Set condition codes
         registers.setR(dr, GateALU);
         uint16_t result = registers.getR(dr);
-        if (result == 0)
-        {
-            registers.setCC(0x02); // Zero
-        }
-        else if (result >> 15)
-        {
-            registers.setCC(0x04); // Negative
-        }
-        else
-        {
-            registers.setCC(0x01); // Positive
-        }
+        updateFlags(result);
     }
-        break;
-    default:
-        // Handle unsupported opcode
-        break;
+    else if (opcode == 0xC)
+    { // RET or JMP instruction
+        registers.setPC(address);
+    }
+    else if (opcode == 0x9)
+    { // NOT instruction
+        // Set condition codes
+        registers.setR(dr, GateALU);
+        uint16_t result = registers.getR(dr);
+        updateFlags(result);
     }
 }
+
 bool LC3Instructions::isHalt(){
     return (registers.getMDR() == 0xF025);
 }
+
