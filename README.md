@@ -39,7 +39,7 @@ Welcome to the LC3 Simulator! This simulator is designed to emulate the behavior
 
 ### Screenshots
 
-![LC3 Simulator Screenshot](https://s8.uupload.ir/files/screenshot_2024-07-07_204005_j5i6.png)
+![LC3 Simulator Screenshot](https://s8.uupload.ir/files/screenshot_2024-07-07_233932_w1xd.png)
 
 
 
