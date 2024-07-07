@@ -82,7 +82,7 @@ QPushButton:pressed {
 }</string>
     </property>
     <property name="text">
-     <string>Next Phase</string>
+     <string>Next Cycle</string>
     </property>
    </widget>
    <widget class="QLabel" name="Phase_lable">
@@ -100,7 +100,7 @@ color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                                   stop:0 #8ae2de, stop:0.5 #41beb9, stop:1 #2e8c87);</string>
     </property>
     <property name="text">
-     <string>Phase:</string>
+     <string>Cycle:</string>
     </property>
    </widget>
    <widget class="QLabel" name="Phase">
