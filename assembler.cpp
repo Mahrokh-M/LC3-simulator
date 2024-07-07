@@ -71,7 +71,8 @@ QMap<QString, uint16_t> firstPass(const QVector<QString> &lines)
         if (line.isEmpty() || line.startsWith(';'))
             continue; // Ignore empty lines and comments
 
-        QVector<QString> tokens = split(line, ' ');
+        QRegularExpression re("\\s+");
+            QVector<QString> tokens = line.split(re, Qt::SkipEmptyParts);
         if (tokens[0] == "ORG")
         {
             QString addrString = tokens[1];
@@ -79,7 +80,7 @@ QMap<QString, uint16_t> firstPass(const QVector<QString> &lines)
             uint16_t newAddress = addrString.toInt(&ok, 16);
             if (!ok)
             {
-                qWarning() << "Error converting address:" << addrString;
+                qWarning() << "Error converting address:" << addrString; ///////////
             }
             else
             {
@@ -91,7 +92,7 @@ QMap<QString, uint16_t> firstPass(const QVector<QString> &lines)
         else if (tokens[0].endsWith(','))
         {
             labels[tokens[0].chopped(1)] = address;
-            if (tokens.size() > 1)
+            if (tokens.size() > 1)   ///////////////////////////////////
             {
                 address++; // If there's an instruction on the same line, increment address
             }

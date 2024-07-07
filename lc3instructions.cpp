@@ -113,6 +113,8 @@ void LC3Instructions::decode()
     case 0xE:
         // LEA
     {
+        offset9 = ir & 0x1FF;
+        if (offset9 & 0x100)
         {
             offset9 |= 0xFE00;
         }
