@@ -1,6 +1,6 @@
 #include "lc3instructions.h"
 #include <cstdint>
-#include "LC3.h"
+#include "lc3.h"
 uint16_t ir;
 uint16_t nzp;
 uint16_t dr;
@@ -425,23 +425,21 @@ void LC3Instructions::store(LC3Memory &memory)
         uint16_t value = registers.getMDR();
         // Update condition codes
         registers.setR(dr, value);
+
+        // Update condition codes
         if (value == 0)
         {
-            uint16_t value = registers.getMDR();
-            // Update condition codes
-            if (value == 0)
-            {
-                registers.setCC(0x02); // Zero flag
-            }
-            else if (value & 0x8000)
-            {
-                registers.setCC(0x04); // Negative flag
-            }
-            else
-            {
-                registers.setCC(0x01); // Positive flag
-            }
+            registers.setCC(0x02); // Zero flag
         }
+        else if (value & 0x8000)
+        {
+            registers.setCC(0x04); // Negative flag
+        }
+        else
+        {
+            registers.setCC(0x01); // Positive flag
+        }
+
     }
         break;
     case 0x6:
@@ -450,9 +448,7 @@ void LC3Instructions::store(LC3Memory &memory)
         uint16_t value = registers.getMDR();
         // Update condition codes
         registers.setR(dr, value);
-        if (value == 0)
-        {
-            uint16_t value = registers.getMDR();
+
             // Update condition codes
             if (value == 0)
             {
@@ -466,7 +462,6 @@ void LC3Instructions::store(LC3Memory &memory)
             {
                 registers.setCC(0x01); // Positive flag
             }
-        }
     }
         break;
     case 0xE:

@@ -600,25 +600,23 @@ void secondPass(const QVector<QString> &lines, const QMap<QString, uint16_t> &la
     }
 }
 
-// Main function to assemble and simulate LC-3 program
-int startAssembly(QString inputFilename)
-{
+int startAssembly(QString &assemblyCode) {
+    // Convert assembly code from QString to QVector<QString> for compatibility with existing functions
+    QVector<QString> codeLines = assemblyCode.split("\n", Qt::SkipEmptyParts).toVector();
 
-    // Assemble the code
-    QVector<QString> assemblyCode = readFile(inputFilename);
-    if (assemblyCode.isEmpty())
-    {
-        qWarning() << "Failed to assemble. Exiting...";
+    if (codeLines.isEmpty()) {
+        qWarning() << "No code provided for assembly. Exiting...";
         return 1; // Return error code
     }
 
-    QMap<QString, uint16_t> labels = firstPass(assemblyCode);
-
+    QMap<QString, uint16_t> labels = firstPass(codeLines);
     LC3Memory tempMemory(0xFFFF); // Create memory with size 0xFFFF (64KB)
+    secondPass(codeLines, labels, tempMemory);
 
-    secondPass(assemblyCode, labels, tempMemory);
     // Write assembled code to output file
-    globalFile.writeToFile(tempMemory, 0x3000, 0x3000 + assemblyCode.size() - 1);
+    globalFile.writeToFile(tempMemory, 0x3000, 0x3000 + codeLines.size() - 1);
 
     qDebug() << "Assembly completed. Output written to MEMORY.bin";
+
+    return 0; // Return success code
 }

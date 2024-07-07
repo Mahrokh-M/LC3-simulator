@@ -13,7 +13,7 @@ public:
     Assembler();
 };
 
+int startAssembly( QString &inputFilename);
 #endif // ASSEMBLER_H
 
-int startAssembly( QString inputFilename);
 
