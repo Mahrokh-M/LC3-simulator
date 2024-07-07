@@ -31,7 +31,7 @@ This project implements a simulator for the LC3 (Little Computer 3) architecture
 - Build the project using Qt Creator.
 - Run the compiled binary to start the LC3 simulator.
 
-### You can also install it using the installer provided, without the need to install Qt creator or C++ compiler.
+### Alternatively, you can also install it using the installer provided, without the need to install Qt creator or C++ compiler.
 
 ## Usage
 
@@ -154,6 +154,44 @@ Manages the assembly process.
 #### Public Functions
 
 - `startAssembly(QString &inputFilename)`: Starts the assembly process for the given input file.
+## Implementation Details
+
+### Project Structure
+
+The project is structured into several key components that manage different aspects of the LC3 simulation:
+
+- **Logic**: Handles the main application logic and user interface interactions.
+- **LC3Registers**: Manages the LC3 CPU registers.
+- **LC3Memory**: Manages the LC3 memory operations.
+- **LC3Instructions**: Implements the LC3 instruction set including fetch, decode, execute operations.
+- **FileReadWrite**: Handles file operations for reading from and writing to files.
+- **AssemblerLogic**: Logic for assembling LC3 assembly code into machine code.
+- **Assembler**: Manages the assembly process.
+
+### Algorithms and Methods
+
+- **Assembly Process**: The assembler parses the assembly code, resolves labels, and converts instructions into machine code using a two-pass algorithm. It validates instruction formats and processes directives like ORG to correctly place instructions in memory.
+
+- **Instruction Execution**: Instructions are fetched from memory, decoded, and executed in accordance with the LC3 architecture. Each instruction set (A and B) is handled separately to ensure accurate operation.
+
+- **Memory Management**: LC3 memory is managed using a dedicated class that provides read and write operations, ensuring efficient memory access during program execution.
+
+### Design Patterns
+
+- **MVC Architecture**: The project follows a Model-View-Controller architecture where the logic (controller) interacts with the GUI (view) and manages data through models (registers, memory).
+
+### Challenges and Solutions
+
+- **Assembler Optimization**: Initially, assembler performance was a concern due to large file sizes. Implementing optimizations such as caching label addresses and using efficient data structures helped improve assembly speed.
+
+- **GUI Responsiveness**: Ensuring the GUI remained responsive during intensive operations like instruction execution required careful thread management and event handling.
+
+### Future Improvements
+
+- **Debugger Functionality**: Introduce debugging tools such as breakpoints, variable inspection, and step-by-step execution.
+  
+- **Enhanced Memory Visualization**: Improve the memory viewer to display memory contents in various formats (hexadecimal, ASCII, etc.) for better debugging and analysis.
+
 ### Usage
 
 - Start the simulator from Qt Creator.
@@ -166,3 +204,7 @@ Manages the assembly process.
 ### Screenshots
 
 ![LC3 Simulator Screenshot](https://s8.uupload.ir/files/screenshot_2024-07-07_233932_n8b5.png)
+
+## Conclusion
+
+This LC3 Simulator project provides a comprehensive tool for simulating and executing LC3 assembly code. Whether you're learning about computer architecture or debugging complex programs, our simulator offers a robust platform with intuitive features and expandable functionality.
