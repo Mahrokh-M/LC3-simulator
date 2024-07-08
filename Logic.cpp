@@ -190,12 +190,11 @@ void Logic::setupFlagsTable() {
     ui->flagsTableWidget->verticalHeader()->setStretchLastSection(true);
 }
 
-
-
 void Logic::updateRegisterContent(int registerIndex, uint16_t value) {
     QString content = QString::number(value, 16).toUpper();
     ui->tableWidget->item(1, registerIndex)->setText("0x" + content);
 }
+
 void Logic::updateAllRegisters() {
     updateRegisterContent(1, registers.getR(0)); // Start from index 1
     updateRegisterContent(2, registers.getR(1));
@@ -211,25 +210,24 @@ void Logic::updateFlagContent(int index, uint16_t value) {
     QString content = QString::number(value).toUpper();
     ui->flagsTableWidget->item(1, index)->setText(content);
 }
+
 void Logic::updateAllFlags() {
     updateFlagContent(1, (registers.getCC() >> 2) & 0x1); // Negative
     updateFlagContent(2, registers.getCC() & 0x1); // Positive
     updateFlagContent(3, (registers.getCC() >> 1) & 0x1); // Zero
 }
 
-
-
 void Logic::updateAdditionalContent(int index, uint16_t value) {
     QString content = QString::number(value, 16).toUpper();
     ui->additionalTableWidget->item(1, index)->setText("0x" + content);
 }
+
 void Logic::updateAllAdditionalValues() {
     updateAdditionalContent(1, registers.getMAR()); // Start from index 1
     updateAdditionalContent(2, registers.getMDR());
     updateAdditionalContent(3, registers.getPC());
     updateAdditionalContent(4, registers.getIR()); // End at index 4
 }
-
 
 
 void Logic::updateRegisters()
@@ -240,22 +238,30 @@ void Logic::updateRegisters()
 
 }
 
-void Logic::updateMemory(int index)
+void Logic::updateMemory(int scrollToIndex)
 {
-    if (index < ui->memoryTable->rowCount())
+    int rowCount = ui->memoryTable->rowCount();
+
+    for (int index = 0; index < rowCount; ++index)
     {
         QTableWidgetItem *valueItem = new QTableWidgetItem(QString("0x%1").arg(memory.read(index), 4, 16, QChar('0')).toUpper());
         valueItem->setTextAlignment(Qt::AlignCenter); // Align text to center
         ui->memoryTable->setItem(index, 1, valueItem);
+    }
 
-        // Scroll to the updated memory location
-        ui->memoryTable->scrollToItem(valueItem, QAbstractItemView::PositionAtCenter);
+    // Ensure scrollToIndex is within bounds
+    if (scrollToIndex >= 0 && scrollToIndex < rowCount)
+    {
+        // Get the item at scrollToIndex
+        QTableWidgetItem *itemToScrollTo = ui->memoryTable->item(scrollToIndex, 1);
+
+        // Scroll to the item
+        if (itemToScrollTo)
+        {
+            ui->memoryTable->scrollToItem(itemToScrollTo, QAbstractItemView::PositionAtCenter);
+        }
     }
 }
-
-
-
-
 
 void Logic::memoryFill() {
     // Set up table dimensions and headers
@@ -294,7 +300,6 @@ void Logic::memoryFill() {
     ui->memoryTable->setFont(tableFont);
 }
 
-
 void Logic::on_Upload_code_clicked()
 {
     QString newFileName = QFileDialog::getOpenFileName(this, tr("Open File"), "", tr("Assembly Files (*.asm)"));
@@ -325,6 +330,7 @@ void Logic::on_Upload_code_clicked()
         QMessageBox::warning(this, tr("No File Selected"), tr("No file was selected."));
     }
 }
+
 void Logic::on_ASSEMBLE_clicked() {
     QString code;
 
@@ -360,9 +366,6 @@ void Logic::on_ASSEMBLE_clicked() {
         updateMemory(index); // Ensure memory is filled and visible
     }
 }
-
-
-
 
 void Logic::on_Reset_clicked()
 {
@@ -400,8 +403,6 @@ void Logic::on_Reset_clicked()
     // Reset simulation phase counter
     sc = 1;
 }
-
-
 
 void Logic::on_nextCycle_clicked()
 {
@@ -465,7 +466,6 @@ void Logic::on_nextCycle_clicked()
     }
 
 }
-
 
 void Logic::on_SampleCode_clicked()
 {
